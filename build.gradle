@@ -21,14 +21,14 @@ plugins {
 }
 
 //----------------------START "DO NOT MODIFY" SECTION------------------------------
-def ghidraInstallDir
+def ghidraInstallDir="C:\\Users\\Administrator\\Desktop\\ghidra_10.1.2_PUBLIC_20220125\\ghidra_10.1.2_PUBLIC"
 
-if (System.env.GHIDRA_INSTALL_DIR) {
-	ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
-}
-else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
-	ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
-}
+//if (System.env.GHIDRA_INSTALL_DIR) {
+//	ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
+//}
+//else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+//	ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
+//}
 
 if (ghidraInstallDir) {
 	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"

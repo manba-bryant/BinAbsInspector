@@ -138,11 +138,21 @@ public class MemoryCorruption {
                     if (FreeFunction.getStaticSymbols().contains(callee.getName(false))) {
                         return false;
                     }
-                    details = "Use After Free when Call to " + callee.getName(false);
+                    details = "Use After Free when Call to "  + callee.getName(false) ;
                     break;
                 default: // nothing
             }
-            details += " for chunk allocated at " + chunk.getAllocAddress() + ", when access";
+            details += " for chunk allocated at " + "[ alloc ]" + "(" + chunk.getAllocAddress() + "," +
+                    chunk.getContext().getFunction().getName() + ")" + " -> ";
+            details +=  "[ free ]" + "(" +  ((Heap) ptr.getRegion()).getFreeSite() + "," +
+                    ((Heap) ptr.getRegion()).getContext().getFunction().getName() + ")" + " -> ";
+//            details +=  "[ use ]" + "(" +  callee.getEntryPoint() + "," +
+//                    callee.getName() + ")" + " -> ";
+
+
+            // details +=" -> [ free ] (" + address + ","+ context.getFunction().getName() + ")";
+
+
             CWEReport report = new CWEReport(CWE416, VERSION, details)
                     .setAddress(address)
                     .setContext(context);
