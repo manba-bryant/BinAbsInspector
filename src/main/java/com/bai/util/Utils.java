@@ -13,10 +13,6 @@ import ghidra.app.cmd.function.ApplyFunctionSignatureCmd;
 import ghidra.app.util.bin.MemoryByteProvider;
 import ghidra.app.util.bin.format.elf.ElfException;
 import ghidra.app.util.bin.format.elf.ElfHeader;
-import ghidra.app.util.bin.format.pe.PortableExecutable;
-import ghidra.app.util.bin.format.pe.OptionalHeader;
-import ghidra.app.util.opinion.ElfLoader;
-import ghidra.app.util.opinion.PeLoader;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.data.FunctionDefinitionDataType;
 import ghidra.program.model.data.IntegerDataType;
@@ -175,6 +171,7 @@ public class Utils {
      * @param bits the bit length.
      * @return return a List of adjusted AbsVal.
      */
+    @SuppressWarnings("deprecation")
     public static List<AbsVal> adjustLocalAbsVal(AbsVal absVal, Context context, int bits) {
         List<AbsVal> res = new ArrayList<>();
         if (context == null || context.getOldSpKSet() == null) {
@@ -344,44 +341,22 @@ public class Utils {
     }
 
     /**
-     * Get the entry function of the ELF/PE executable.
+     * Get the entry function of this ELF executable.
      * @return
      */
     public static Function getEntryFunction() {
         try {
             MemoryByteProvider provider = new MemoryByteProvider(GlobalState.currentProgram.getMemory(),
                     GlobalState.currentProgram.getMinAddress());
-            
-            Address entryAddress;
-            String executableFormat = GlobalState.currentProgram.getExecutableFormat();
-            
-            switch (executableFormat) {
-                case ElfLoader.ELF_NAME: {
-                    ElfHeader header = ElfHeader.createElfHeader(RethrowContinuesFactory.INSTANCE, provider);
-                    entryAddress = GlobalState.flatAPI.toAddr(header.e_entry());
-                    if (entryAddress.subtract(GlobalState.currentProgram.getImageBase()) < 0) {
-                        // handle PIE ELF with non-zero base address
-                        entryAddress = entryAddress.add(GlobalState.currentProgram.getImageBase().getOffset());
-                    }
-                }
-                break;
-
-                case PeLoader.PE_NAME: {
-                    PortableExecutable pe = PortableExecutable.createPortableExecutable(
-                            RethrowContinuesFactory.INSTANCE, provider, PortableExecutable.SectionLayout.MEMORY);
-                    OptionalHeader header = pe.getNTHeader().getOptionalHeader();
-                    entryAddress = GlobalState.flatAPI.toAddr(header.getAddressOfEntryPoint());
-                    entryAddress = entryAddress.add(GlobalState.currentProgram.getImageBase().getOffset());
-                }
-                break;
-
-                default:
-                    throw new Exception("Unsupported file format.");
+            ElfHeader header = ElfHeader.createElfHeader(RethrowContinuesFactory.INSTANCE, provider);
+            Address entryAddress = GlobalState.flatAPI.toAddr(header.e_entry());
+            if (entryAddress.subtract(GlobalState.currentProgram.getImageBase()) < 0) {
+                // handle PIE ELF with non-zero base address
+                entryAddress = entryAddress.add(GlobalState.currentProgram.getImageBase().getOffset());
             }
-
             return GlobalState.flatAPI.getFunctionAt(entryAddress);
-        } catch (Exception e) {
-            Logging.error(e.getMessage());
+        } catch (ElfException e) {
+            Logging.error("Unsupported file format.");
             return null;
         }
     }

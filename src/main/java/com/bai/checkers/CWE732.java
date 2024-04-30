@@ -69,6 +69,7 @@ public class CWE732 extends CheckerBase {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean check() {
         boolean hasWarning = false;
         for (Reference reference : Utils.getReferences(List.of(umaskName))) {

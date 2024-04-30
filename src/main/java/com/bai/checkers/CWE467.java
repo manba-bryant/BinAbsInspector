@@ -69,6 +69,7 @@ public class CWE467 extends CheckerBase {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean check() {
         boolean hasWarning = false;
         try {

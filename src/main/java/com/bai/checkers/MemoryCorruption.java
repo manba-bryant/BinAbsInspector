@@ -81,6 +81,7 @@ public class MemoryCorruption {
      * @param argIndex
      * @return
      */
+    @SuppressWarnings("deprecation")
     public static boolean checkNullPointerDereference(KSet kSet, Address address, Context context, Function callee,
             int type, int argIndex) {
         if (!kSet.isNormal() || !kSet.isSingleton()) {
@@ -138,21 +139,10 @@ public class MemoryCorruption {
                     if (FreeFunction.getStaticSymbols().contains(callee.getName(false))) {
                         return false;
                     }
-                    details = "Use After Free when Call to "  + callee.getName(false) ;
+                    details = "Use After Free when Call to " + callee.getName(false);
                     break;
                 default: // nothing
             }
-            details += " for chunk allocated at " + "[ alloc ]" + "(" + chunk.getAllocAddress() + "," +
-                    chunk.getContext().getFunction().getName() + ")" + " -> ";
-            details +=  "[ free ]" + "(" +  ((Heap) ptr.getRegion()).getFreeSite() + "," +
-                    ((Heap) ptr.getRegion()).getContext().getFunction().getName() + ")" + " -> ";
-//            details +=  "[ use ]" + "(" +  callee.getEntryPoint() + "," +
-//                    callee.getName() + ")" + " -> ";
-
-
-            // details +=" -> [ free ] (" + address + ","+ context.getFunction().getName() + ")";
-
-
             CWEReport report = new CWEReport(CWE416, VERSION, details)
                     .setAddress(address)
                     .setContext(context);
@@ -203,7 +193,6 @@ public class MemoryCorruption {
                 default: // nothing
             }
             Logging.debug("Check OOB for: " + ptr + " at " + address.toString() + "," + context.toString());
-            details += " for chunk allocated at " + ((Heap) ptr.getRegion()).getAllocAddress() + ", when access";
             CWEReport report = new CWEReport(cwe, VERSION, details)
                     .setAddress(address)
                     .setContext(context);

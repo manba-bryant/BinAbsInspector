@@ -13,14 +13,11 @@ import java.util.Set;
 import org.javimmutable.collections.JImmutableMap.Entry;
 
 /**
- * int atoi(const char *nptr)
- * long atol(const char *nptr)
- * long long atoll(const char *nptr)
- * long long atoq(const char *nptr)
+ * int atoi(const char *str)
  */
 public class AtoiFunction extends ExternalFunctionBase {
 
-    private static final Set<String> staticSymbols = Set.of("atoi", "atol", "atoll", "atoq");
+    private static final Set<String> staticSymbols = Set.of("atoi");
 
     public AtoiFunction() {
         super(staticSymbols);

@@ -1,7 +1,5 @@
 package com.bai.env.funcs.externalfuncs;
 
-import static com.bai.util.Utils.getAddress;
-
 import com.bai.env.ALoc;
 import com.bai.env.AbsEnv;
 import com.bai.env.AbsVal;
@@ -11,7 +9,6 @@ import com.bai.env.TaintMap;
 import com.bai.env.region.Reg;
 import com.bai.util.GlobalState;
 import com.bai.util.Utils;
-import ghidra.program.model.address.Address;
 import ghidra.program.model.data.ParameterDefinition;
 import ghidra.program.model.lang.PrototypeModel;
 import ghidra.program.model.listing.Function;
@@ -84,8 +81,7 @@ public abstract class InputVarArgsFunctionBase extends VarArgsFunctionBase {
 
     public void invoke(PcodeOp pcodeOp, AbsEnv inOutEnv, AbsEnv tmpEnv, Context context, Function callFunc) {
         super.invoke(pcodeOp, inOutEnv, tmpEnv, context, callFunc);
-        Address callAddress = getAddress(pcodeOp);
-        long newTaints = TaintMap.getTaints(callAddress, context, callFunc);
+        long newTaints = TaintMap.getTaints(context, callFunc);
         taintVarArgs(pcodeOp, inOutEnv, callFunc, newTaints);
     }
 }

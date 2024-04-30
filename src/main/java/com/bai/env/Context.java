@@ -163,6 +163,7 @@ public class Context {
     /**
      * @hidden
      */
+    @SuppressWarnings("deprecation")
     public KSet getOldSpKSet() {
         return oldSpKSet;
     }
@@ -175,7 +176,7 @@ public class Context {
                     + this.toString() + ")");
         }
     }
-
+    @SuppressWarnings("deprecation")
     private void updateSP(AbsEnv inOutEnv) {
         ALoc spALoc = ALoc.getSPALoc();
         KSet oldSpKSet = inOutEnv.get(spALoc);
@@ -208,6 +209,7 @@ public class Context {
     /**
      * Taint argc and argv for main function
      */
+    @SuppressWarnings("deprecation")
     public void prepareMainAbsEnv(AbsEnv absEnv, Function mainFunction) {
         final long TAINT_ARGV_COUNT = 5;
         Utils.defineMainFunctionSignature(mainFunction);
@@ -247,7 +249,7 @@ public class Context {
         } else {
             offset = entryLocal.getBase();
         }
-        long taints = TaintMap.getTaints(null, this, GlobalState.eEntryFunction);
+        long taints = TaintMap.getTaints(this, GlobalState.eEntryFunction);
         int unit = GlobalState.arch.getDefaultPointerSize();
         for (int i = 0; i < TAINT_ARGV_COUNT; i++) {
             absEnv.set(ALoc.getALoc(entryLocal, offset + ((long) i * unit), unit), KSet.getTop(taints), true);

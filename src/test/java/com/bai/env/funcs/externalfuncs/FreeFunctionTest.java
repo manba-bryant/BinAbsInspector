@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 public class FreeFunctionTest extends ARMProgramTestBase {
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testInvoke() {
         PcodeOp pcode = Utils.getMockCallPcodeOp();
         Context mockContext = Mockito.mock(Context.class);

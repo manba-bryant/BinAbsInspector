@@ -34,6 +34,7 @@ public abstract class CheckerBase {
      * @param absEnv the AbsEnv.
      * @return a list of ALocs.
      */
+    @SuppressWarnings("deprecation")
     public static List<ALoc> getParamALocs(Function function, int paramIdx, AbsEnv absEnv) {
         List<ALoc> res = new ArrayList<>();
         Parameter parameter = function.getParameter(paramIdx);

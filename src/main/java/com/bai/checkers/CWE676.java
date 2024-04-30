@@ -110,6 +110,7 @@ public class CWE676 extends CheckerBase {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean check() {
         boolean hasWarning = false;
         try {

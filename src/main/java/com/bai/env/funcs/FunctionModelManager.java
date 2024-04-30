@@ -13,12 +13,10 @@ import com.bai.env.funcs.externalfuncs.GetenvFunction;
 import com.bai.env.funcs.externalfuncs.GetsFunction;
 import com.bai.env.funcs.externalfuncs.LibcStartMainFunction;
 import com.bai.env.funcs.externalfuncs.MallocFunction;
-import com.bai.env.funcs.externalfuncs.MallocUsableSizeFunction;
 import com.bai.env.funcs.externalfuncs.MemcpyFunction;
 import com.bai.env.funcs.externalfuncs.PrintfFunction;
 import com.bai.env.funcs.externalfuncs.PutsFunction;
 import com.bai.env.funcs.externalfuncs.RandFunction;
-import com.bai.env.funcs.externalfuncs.ReadFunction;
 import com.bai.env.funcs.externalfuncs.ReallocFunction;
 import com.bai.env.funcs.externalfuncs.RecvFunction;
 import com.bai.env.funcs.externalfuncs.ScanfFunction;
@@ -26,7 +24,6 @@ import com.bai.env.funcs.externalfuncs.SnprintfFunction;
 import com.bai.env.funcs.externalfuncs.SprintfFunction;
 import com.bai.env.funcs.externalfuncs.SscanfFunction;
 import com.bai.env.funcs.externalfuncs.StrcatFunction;
-import com.bai.env.funcs.externalfuncs.StrchrFunction;
 import com.bai.env.funcs.externalfuncs.StrcpyFunction;
 import com.bai.env.funcs.externalfuncs.StrlenFunction;
 import com.bai.env.funcs.externalfuncs.StrncpyFunction;
@@ -58,7 +55,6 @@ public class FunctionModelManager {
             new CallocFunction(),
             new ReallocFunction(),
             new FreeFunction(),
-            new MallocUsableSizeFunction(),
             // String function
             new StrcatFunction(),
             new StrlenFunction(),
@@ -69,7 +65,6 @@ public class FunctionModelManager {
             new FgetcFunction(),
             new GetsFunction(),
             new FgetsFunction(),
-            new ReadFunction(),
             new RecvFunction(),
             new GetenvFunction(),
             new RandFunction(),
@@ -77,7 +72,6 @@ public class FunctionModelManager {
             new ScanfFunction(),
             new SscanfFunction(),
             new FscanfFunction(),
-            new StrchrFunction(),
             // varargs functions
             new PrintfFunction(),
             new SnprintfFunction(),

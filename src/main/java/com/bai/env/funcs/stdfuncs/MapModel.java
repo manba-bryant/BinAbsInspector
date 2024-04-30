@@ -34,7 +34,7 @@ public class MapModel extends CppStdModelBase<HashMap<AbsVal, AbsVal>> {
     protected HashMap<AbsVal, AbsVal> getNewContainer(HashMap<AbsVal, AbsVal> other) {
         return new HashMap<>(other);
     }
-
+    @SuppressWarnings("deprecation")
     private void subscript(PcodeOp pcode, AbsEnv inOutEnv, AbsEnv tmpEnv, Context context, Function callFunc) {
         if (callFunc.getParameterCount() != 2) {
             Logging.error("Wrong parameter for: " + callFunc);

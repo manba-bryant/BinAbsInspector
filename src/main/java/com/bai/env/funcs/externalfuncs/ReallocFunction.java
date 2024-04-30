@@ -34,6 +34,7 @@ public class ReallocFunction extends ExternalFunctionBase {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void invoke(PcodeOp pcode, AbsEnv inOutEnv, AbsEnv tmpEnv, Context context, Function callFunc) {
         ALoc retALoc = getReturnALoc(callFunc, false);
         if (retALoc == null) {

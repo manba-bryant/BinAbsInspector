@@ -140,6 +140,7 @@ public abstract class ExternalFunctionBase {
      * @param absEnv the AbsEnv.
      * @return a list of ALocs.
      */
+    @SuppressWarnings("deprecation")
     public static List<ALoc> getParamALocs(Function function, int paramIdx, AbsEnv absEnv) {
         List<ALoc> res = new ArrayList<>();
         Parameter parameter = function.getParameter(paramIdx);
@@ -190,6 +191,7 @@ public abstract class ExternalFunctionBase {
      * @param absEnv the AbsEnv.
      * @return a list of ALocs.
      */
+    @SuppressWarnings("deprecation")
     public static List<ALoc> getVarArgsParamALoc(Function function, FunctionDefinition signature, int paramIdx,
             AbsEnv absEnv) {
         List<ALoc> res = new ArrayList<>();

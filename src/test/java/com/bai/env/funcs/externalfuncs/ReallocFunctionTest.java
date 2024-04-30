@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 public class ReallocFunctionTest extends ARMProgramTestBase {
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testInvoke() {
         PcodeOp pcode = Utils.getMockCallPcodeOp();
         Context mockContext = Mockito.mock(Context.class);

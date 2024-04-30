@@ -864,6 +864,7 @@ public class ConstraintSolverTest extends ARMProgramTestBase {
 
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testVisitStoreLoad() {
         AbsEnv tmpEnv = new AbsEnv();
 
@@ -916,6 +917,7 @@ public class ConstraintSolverTest extends ARMProgramTestBase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testVisitStoreLoadConst() {
         AbsEnv tmpEnv = new AbsEnv();
 
@@ -966,6 +968,7 @@ public class ConstraintSolverTest extends ARMProgramTestBase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testVisitLoad() {
         AbsEnv tmpEnv = new AbsEnv();
         Address instructionAddress = Utils.getDefaultAddress(0x1000);
@@ -1031,6 +1034,7 @@ public class ConstraintSolverTest extends ARMProgramTestBase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testVisitStore() {
 
         AbsEnv tmpEnv = new AbsEnv();

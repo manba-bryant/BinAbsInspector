@@ -578,6 +578,7 @@ public class KSet implements Iterable<AbsVal> {
     /**
      * @hidden
      */
+    @SuppressWarnings("deprecation")
     public KSet div(KSet rhs) {
         if (!isTop() && !rhs.isTop()) {
             assert this.bits == rhs.bits;
@@ -619,6 +620,7 @@ public class KSet implements Iterable<AbsVal> {
     /**
      * @hidden
      */
+    @SuppressWarnings("deprecation")
     public KSet sdiv(KSet rhs) {
         if (!isTop() && !rhs.isTop()) {
             assert this.bits == rhs.bits;
@@ -662,6 +664,7 @@ public class KSet implements Iterable<AbsVal> {
     /**
      * @hidden
      */
+    @SuppressWarnings("deprecation")
     public KSet rem(KSet rhs) {
         if (!isTop() && !rhs.isTop()) {
             assert this.bits == rhs.bits;
@@ -702,6 +705,7 @@ public class KSet implements Iterable<AbsVal> {
     /**
      * @hidden
      */
+    @SuppressWarnings("deprecation")
     public KSet srem(KSet rhs) {
         if (!isTop() && !rhs.isTop()) {
             assert this.bits == rhs.bits;

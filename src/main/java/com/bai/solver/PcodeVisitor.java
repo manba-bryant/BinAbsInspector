@@ -682,10 +682,7 @@ public class PcodeVisitor {
         if (callee.isExternal() || FunctionModelManager.isFunctionAddressMapped(targetAddress)) {
             defineExternalFunctionSignature(pcode, inOutEnv, tmpEnv, callee);
             MemoryCorruption.checkExternalCallParameters(pcode, inOutEnv, tmpEnv, context, callee);
-            Status status = invokeExternal(pcode, inOutEnv, tmpEnv, callee);
-            if (status.noReturn) {
-                jumpOut = true;
-            }
+            invokeExternal(pcode, inOutEnv, tmpEnv, callee);
             return;
         }
 
@@ -693,10 +690,7 @@ public class PcodeVisitor {
             Logging.debug("Calling C++ STL: " + callee.getName(true));
             defineStdFunctionSignature(pcode, inOutEnv, tmpEnv, callee);
             MemoryCorruption.checkExternalCallParameters(pcode, inOutEnv, tmpEnv, context, callee);
-            Status status = invokeStd(pcode, inOutEnv, tmpEnv, callee);
-            if (status.noReturn) {
-                jumpOut = true;
-            }
+            invokeStd(pcode, inOutEnv, tmpEnv, callee);
             return;
         }
 
@@ -881,7 +875,7 @@ public class PcodeVisitor {
             }
         }
     }
-
+    @SuppressWarnings("deprecation")
     public void visit_RETURN(PcodeOp pcode, AbsEnv inOutEnv, AbsEnv tmpEnv) {
         Function function = context.getFunction();
         if (function.hasNoReturn()) {

@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 public class StrlenFunctionTest extends ARMProgramTestBase {
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testInvokeStrlen() {
         final PcodeOp pcode = Utils.getMockCallPcodeOp();
         final Context mockContext = Mockito.mock(Context.class);

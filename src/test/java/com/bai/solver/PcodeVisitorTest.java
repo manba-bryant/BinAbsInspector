@@ -80,6 +80,7 @@ public class PcodeVisitorTest extends ARMProgramTestBase {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testVisitLOAD() {
         int txId = program.startTransaction("init memory");
         MemoryBlock mem = programBuilder.createMemory(".data", "0x2000", 0x1000);

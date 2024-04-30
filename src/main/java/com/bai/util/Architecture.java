@@ -137,6 +137,7 @@ public class Architecture {
      * @param currentAddress address of current instruction.
      * @return the KSet.
      */
+    @SuppressWarnings("deprecation")
     public KSet getPcKSet(Address currentAddress) {
         long pcValue;
         KSet pcKSet = new KSet(defaultPointerSize * 8);

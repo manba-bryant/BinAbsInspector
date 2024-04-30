@@ -32,6 +32,7 @@ public class CallocFunction extends ExternalFunctionBase {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void invoke(PcodeOp pcode, AbsEnv inOutEnv, AbsEnv tmpEnv, Context context, Function callFunc) {
         long size = Heap.DEFAULT_SIZE;
         ALoc retALoc = getReturnALoc(callFunc, false);

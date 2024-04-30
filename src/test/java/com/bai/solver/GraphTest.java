@@ -50,6 +50,7 @@ public class GraphTest  {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testResetSuccs() {
         Function f1 = Mockito.mock(Function.class);
         Function f2 = Mockito.mock(Function.class);
@@ -64,6 +65,7 @@ public class GraphTest  {
 
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testResetPreds() {
         Function f1 = Mockito.mock(Function.class);
         Function f2 = Mockito.mock(Function.class);
@@ -90,6 +92,7 @@ public class GraphTest  {
 
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testFinal() {
 
         boolean[][] g = new boolean[DEFAULT_TEST_SIZE][DEFAULT_TEST_SIZE];// comparison graph
