@@ -130,6 +130,25 @@ public class MemoryCorruption {
             switch (type) {
                 case TYPE_READ:
                     details = "Use After Free Read";
+                    details += "[ alloc ]" + "(" + chunk.getAllocAddress() + "," +
+                            chunk.getContext().getFunction().getName() + ")" + " -> ";
+                    details += "(" + context.getFunction().getSymbol().getAddress() + "," + context.getFunction().getSymbol().getName() + ")" + " -> ";
+                    long[] callString = context.getCallString();
+                    Function[] functions = context.getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
                     break;
                 case TYPE_WRITE:
                     details = "Use After Free Write";
