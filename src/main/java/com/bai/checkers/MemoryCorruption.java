@@ -130,11 +130,9 @@ public class MemoryCorruption {
             switch (type) {
                 case TYPE_READ:
                     details = "Use After Free Read";
-                    details += "[ alloc ]" + "(" + chunk.getAllocAddress() + "," +
-                            chunk.getContext().getFunction().getName() + ")" + " -> ";
-                    details += "(" + context.getFunction().getSymbol().getAddress() + "," + context.getFunction().getSymbol().getName() + ")" + " -> ";
-                    long[] callString = context.getCallString();
-                    Function[] functions = context.getFuncs();
+                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    long[] callString = chunk.getContext().getCallString();
+                    Function[] functions = chunk.getContext().getFuncs();
                     assert callString.length == functions.length;
                     for (int i = functions.length - 1; i >= 0; i--) {
                         if (functions[i] == null) {
@@ -149,19 +147,168 @@ public class MemoryCorruption {
                             details += " -> ";
                         }
                     }
+
+                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
+                    callString = chunk.getContext().getCallString();
+                    functions = chunk.getContext().getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
+                    details += ";  [ use ]" + "(" + address + "," + context.getFunction().getName() + ")" + " -> ";
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
                     break;
                 case TYPE_WRITE:
                     details = "Use After Free Write";
+                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    callString = chunk.getContext().getCallString();
+                    functions = chunk.getContext().getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
+                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
+                    callString = chunk.getContext().getCallString();
+                    functions = chunk.getContext().getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
+                    details += ";  [ use ]" + "(" + address + "," + context.getFunction().getName() + ")" + " -> ";
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
                     break;
                 case TYPE_ARGS:
                     // skip double free cases.
                     if (FreeFunction.getStaticSymbols().contains(callee.getName(false))) {
                         return false;
                     }
-                    details = "Use After Free when Call to " + callee.getName(false);
+                    details = "Use After Free when called as args";
+                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    callString = chunk.getContext().getCallString();
+                    functions = chunk.getContext().getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
+                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
+                    callString = chunk.getContext().getCallString();
+                    functions = chunk.getContext().getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
+                    details += ";    [ use ]" + "(" + callee.getEntryPoint() + "," + callee.getName(false) + ")" + " -> ";
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
+                    assert callString.length == functions.length;
+                    for (int i = functions.length - 1; i >= 0; i--) {
+                        if (functions[i] == null) {
+                            continue;
+                        }
+                        details += "(";
+                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += ",";
+                        details += functions[i].getSymbol().getName();
+                        details += ")";
+                        if (i >= 1 && functions[i - 1] != null) {
+                            details += " -> ";
+                        }
+                    }
+
                     break;
                 default: // nothing
             }
+
+
+
+
             CWEReport report = new CWEReport(CWE416, VERSION, details)
                     .setAddress(address)
                     .setContext(context);
