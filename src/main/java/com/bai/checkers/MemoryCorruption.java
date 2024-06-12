@@ -16,11 +16,11 @@ import com.bai.util.Utils;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.data.FunctionDefinition;
 import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.pcode.PcodeOp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import ghidra.program.model.symbol.Reference;
+import static com.bai.util.GlobalState.*;
 
 /**
  * CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer <br>
@@ -122,6 +122,7 @@ public class MemoryCorruption {
      * @param type
      * @return
      */
+    @SuppressWarnings("deprecation")
     public static boolean checkUseAfterFree(AbsVal ptr, Address address, Context context, Function callee, int type) {
         assert ptr.getRegion().isHeap();
         Heap chunk = (Heap) ptr.getRegion();
@@ -130,7 +131,9 @@ public class MemoryCorruption {
             switch (type) {
                 case TYPE_READ:
                     details = "Use After Free Read";
-                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    //details += "  Path backtracking:  [ Alloc'd ]" + "(" + "alloc_func" + ")" + " -> ";
+                    details += "  Path backtracking:  [ Alloc'd ]" + "(" + "malloc" + ")" + " -> ";
+                    details += "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
                     long[] callString = chunk.getContext().getCallString();
                     Function[] functions = chunk.getContext().getFuncs();
                     assert callString.length == functions.length;
@@ -139,7 +142,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";
@@ -148,25 +151,47 @@ public class MemoryCorruption {
                         }
                     }
 
-                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
-                    callString = chunk.getContext().getCallString();
-                    functions = chunk.getContext().getFuncs();
+                    //details += " [ Free ]" + "(" + "free_func" + ")" + " -> ";
+                    details += " [ Free ]" + "(" + "free" + ")" + " -> ";
+                    Function func_free = currentProgram.getFunctionManager().getFunctionContaining(chunk.getFreeSite());
+                    details += "(" + chunk.getFreeSite() + "," + func_free + ")" + " -> ";
+                    Reference[] references = flatAPI.getReferencesTo(func_free.getSymbol().getAddress());
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
                     assert callString.length == functions.length;
+                    boolean isFirstReference = true;
+                    details += "{";
                     for (int i = functions.length - 1; i >= 0; i--) {
                         if (functions[i] == null) {
                             continue;
                         }
-                        details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
-                        details += ",";
-                        details += functions[i].getSymbol().getName();
-                        details += ")";
-                        if (i >= 1 && functions[i - 1] != null) {
-                            details += " -> ";
+                        for (Reference ref : references) {
+                            Address callingAddress = ref.getFromAddress();
+                            Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                            // 检查调用地址是否在目标函数(functions)交叉引用序列中
+                            if (instruction != null && instruction.getFlowType().isCall() && functions[i].getBody().contains(callingAddress)) {
+                                if (!isFirstReference) {
+                                    details += " or ";
+                                }
+                                details += "(" + callingAddress + "," + functions[i].getSymbol().getName() + ")";
+                                isFirstReference = false;
+                            }
                         }
                     }
+                    details += "}";
 
-                    details += ";  [ use ]" + "(" + address + "," + context.getFunction().getName() + ")" + " -> ";
+                    details += " [ using ]" + "(" + "use_func" + ")" + " -> ";
+                    Function func_use = currentProgram.getFunctionManager().getFunctionContaining(address);
+                    details += "(" +  address + "," + func_use + ")" + " -> ";
+                    references = flatAPI.getReferencesTo(func_use.getEntryPoint());
+                    for (Reference ref : references) {
+                        Address callingAddress = ref.getFromAddress();
+                        Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                        // 检查调用地址是否在目标函数(context)交叉引用序列中
+                        if (instruction != null && instruction.getFlowType().isCall() && context.getFunction().getBody().contains(callingAddress)) {
+                            details += "(" + callingAddress + "," + context.getFunction() + ")" + " -> ";
+                        }
+                    }
                     callString = context.getCallString();
                     functions = context.getFuncs();
                     assert callString.length == functions.length;
@@ -175,7 +200,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";
@@ -187,7 +212,9 @@ public class MemoryCorruption {
                     break;
                 case TYPE_WRITE:
                     details = "Use After Free Write";
-                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    //details += "  Path Informations:  [ Alloc'd ]" + "(" + "alloc_func" + ")" + " -> ";
+                    details += "  Path backtracking:  [ Alloc'd ]" + "(" + "malloc" + ")" + " -> ";
+                    details += "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
                     callString = chunk.getContext().getCallString();
                     functions = chunk.getContext().getFuncs();
                     assert callString.length == functions.length;
@@ -196,7 +223,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";
@@ -205,25 +232,47 @@ public class MemoryCorruption {
                         }
                     }
 
-                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
-                    callString = chunk.getContext().getCallString();
-                    functions = chunk.getContext().getFuncs();
+                    //details += " [ Free ]" + "(" + "free_func" + ")" + " -> ";
+                    details += " [ Free ]" + "(" + "free" + ")" + " -> ";
+                    func_free = currentProgram.getFunctionManager().getFunctionContaining(chunk.getFreeSite());
+                    details += "(" + chunk.getFreeSite() + "," + func_free + ")" + " -> ";
+                    references = flatAPI.getReferencesTo(func_free.getSymbol().getAddress());
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
                     assert callString.length == functions.length;
+                    isFirstReference = true;
+                    details += "{";
                     for (int i = functions.length - 1; i >= 0; i--) {
                         if (functions[i] == null) {
                             continue;
                         }
-                        details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
-                        details += ",";
-                        details += functions[i].getSymbol().getName();
-                        details += ")";
-                        if (i >= 1 && functions[i - 1] != null) {
-                            details += " -> ";
+                        for (Reference ref : references) {
+                            Address callingAddress = ref.getFromAddress();
+                            Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                            // 检查调用地址是否在目标函数(functions)交叉引用序列中
+                            if (instruction != null && instruction.getFlowType().isCall() && functions[i].getBody().contains(callingAddress)) {
+                                if (!isFirstReference) {
+                                    details += " or ";
+                                }
+                                details += "(" + callingAddress + "," + functions[i].getSymbol().getName() + ")";
+                                isFirstReference = false;
+                            }
                         }
                     }
+                    details += "}";
 
-                    details += ";  [ use ]" + "(" + address + "," + context.getFunction().getName() + ")" + " -> ";
+                    details += " [ using ]" + "(" + "use_func" + ")" + " -> ";
+                    func_use = currentProgram.getFunctionManager().getFunctionContaining(address);
+                    details += "(" +  address + "," + func_use + ")" + " -> ";
+                    references = flatAPI.getReferencesTo(func_use.getEntryPoint());
+                    for (Reference ref : references) {
+                        Address callingAddress = ref.getFromAddress();
+                        Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                        // 检查调用地址是否在目标函数(context)交叉引用序列中
+                        if (instruction != null && instruction.getFlowType().isCall() && context.getFunction().getBody().contains(callingAddress)) {
+                            details += "(" + callingAddress + "," + context.getFunction() + ")" + " -> ";
+                        }
+                    }
                     callString = context.getCallString();
                     functions = context.getFuncs();
                     assert callString.length == functions.length;
@@ -232,7 +281,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";
@@ -248,7 +297,9 @@ public class MemoryCorruption {
                         return false;
                     }
                     details = "Use After Free when called as args";
-                    details += "  Path backtracking:  [ alloc ]" + "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
+                    //details += "  Path Informations:  [ Alloc'd ]" + "(" + "alloc_func" + ")" + " -> ";
+                    details += "  Path backtracking:  [ Alloc'd ]" + "(" + "malloc" + ")" + " -> ";
+                    details += "(" + chunk.getAllocAddress() + "," + chunk.getContext().getFunction() + ")" + " -> ";
                     callString = chunk.getContext().getCallString();
                     functions = chunk.getContext().getFuncs();
                     assert callString.length == functions.length;
@@ -257,7 +308,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";
@@ -266,25 +317,48 @@ public class MemoryCorruption {
                         }
                     }
 
-                    details += ";  [ free ]" + "(" + chunk.getFreeSite() + "," + chunk.getContext().getFunction().getName() + ")" + " -> ";
-                    callString = chunk.getContext().getCallString();
-                    functions = chunk.getContext().getFuncs();
+                    //details += " [ Free ]" + "(" + "free_func" + ")" + " -> ";
+                    details += " [ Free ]" + "(" + "free" + ")" + " -> ";
+                    func_free = currentProgram.getFunctionManager().getFunctionContaining(chunk.getFreeSite());
+                    details += "(" + chunk.getFreeSite() + "," + func_free + ")" + " -> ";
+                    references = flatAPI.getReferencesTo(func_free.getSymbol().getAddress());
+                    callString = context.getCallString();
+                    functions = context.getFuncs();
                     assert callString.length == functions.length;
+                    isFirstReference = true;
+                    details += "{";
                     for (int i = functions.length - 1; i >= 0; i--) {
                         if (functions[i] == null) {
                             continue;
                         }
-                        details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
-                        details += ",";
-                        details += functions[i].getSymbol().getName();
-                        details += ")";
-                        if (i >= 1 && functions[i - 1] != null) {
-                            details += " -> ";
+                        for (Reference ref : references) {
+                            Address callingAddress = ref.getFromAddress();
+                            Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                            // 检查调用地址是否在目标函数(functions)交叉引用序列中
+                            if (instruction != null && instruction.getFlowType().isCall() && functions[i].getBody().contains(callingAddress)) {
+                                if (!isFirstReference) {
+                                    details += " or ";
+                                }
+                                details += "(" + callingAddress + "," + functions[i].getSymbol().getName() + ")";
+                                isFirstReference = false;
+                            }
+                        }
+                    }
+                    details += "}";
+
+                    details += " [ using ]" + "(" + "use_func" + ")" + " -> ";
+                    func_use = currentProgram.getFunctionManager().getFunctionContaining(address);
+                    details += "(" +  address + "," + func_use + ")" + " -> ";
+                    references = flatAPI.getReferencesTo(func_use.getEntryPoint());
+                    for (Reference ref : references) {
+                        Address callingAddress = ref.getFromAddress();
+                        Instruction instruction = flatAPI.getInstructionAt(callingAddress);
+                        // 检查调用地址是否在目标函数(context)交叉引用序列中
+                        if (instruction != null && instruction.getFlowType().isCall() && context.getFunction().getBody().contains(callingAddress)) {
+                            details += "(" + callingAddress + "," + context.getFunction() + ")" + " -> ";
                         }
                     }
 
-                    details += ";    [ use ]" + "(" + callee.getEntryPoint() + "," + callee.getName(false) + ")" + " -> ";
                     callString = context.getCallString();
                     functions = context.getFuncs();
                     assert callString.length == functions.length;
@@ -293,7 +367,7 @@ public class MemoryCorruption {
                             continue;
                         }
                         details += "(";
-                        details += GlobalState.flatAPI.toAddr(callString[i]).toString();
+                        details += flatAPI.toAddr(callString[i]).toString();
                         details += ",";
                         details += functions[i].getSymbol().getName();
                         details += ")";

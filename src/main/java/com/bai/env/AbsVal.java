@@ -14,7 +14,7 @@ public class AbsVal {
 
     protected long value;
 
-    protected static AbsVal True;
+    public static AbsVal True;
 
     protected static AbsVal False;
 

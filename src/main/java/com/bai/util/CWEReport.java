@@ -83,28 +83,28 @@ public class CWEReport implements Message {
     @SuppressWarnings("deprecation")
     public String getFormattedMessage() {
         StringBuilder msgBuilder = new StringBuilder(cwe + ": " + details);
-        if (address != null) {
-            msgBuilder.append(" @ ").append(address);
-        }
-        if (context != null) {
-            msgBuilder.append(" [ ");
-            long[] callString = context.getCallString();
-            Function[] functions = context.getFuncs();
-            assert callString.length == functions.length;
-            for (int i = functions.length - 1; i >= 0; i--) {
-                if (functions[i] == null) {
-                    continue;
-                }
-                msgBuilder.append(GlobalState.flatAPI.toAddr(callString[i]).toString());
-                msgBuilder.append(" (");
-                msgBuilder.append(functions[i].getSymbol().getName());
-                msgBuilder.append(")");
-                if (i >= 1 && functions[i - 1] != null) {
-                    msgBuilder.append(", ");
-                }
-            }
-            msgBuilder.append(" ]");
-        }
+//        if (address != null) {
+//            msgBuilder.append(" @ ").append(address);
+//        }
+//        if (context != null) {
+//            msgBuilder.append(" [ ");
+//            long[] callString = context.getCallString();
+//            Function[] functions = context.getFuncs();
+//            assert callString.length == functions.length;
+//            for (int i = functions.length - 1; i >= 0; i--) {
+//                if (functions[i] == null) {
+//                    continue;
+//                }
+//                msgBuilder.append(GlobalState.flatAPI.toAddr(callString[i]).toString());
+//                msgBuilder.append(" (");
+//                msgBuilder.append(functions[i].getSymbol().getName());
+//                msgBuilder.append(")");
+//                if (i >= 1 && functions[i - 1] != null) {
+//                    msgBuilder.append(", ");
+//                }
+//            }
+//            msgBuilder.append(" ]");
+//        }
         return msgBuilder.toString();
     }
 

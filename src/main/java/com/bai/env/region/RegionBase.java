@@ -126,6 +126,7 @@ public abstract class RegionBase {
      * @hidden
      */
     @Override
+
     public String toString() {
         switch (kind) {
             case TYPE_GLOBAL:
