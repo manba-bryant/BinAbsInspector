@@ -29,6 +29,10 @@ You can run BinAbsInspector in headless mode, GUI mode, or with docker.
 ```
 $GHIDRA_INSTALL_DIR/support/analyzeHeadless <projectPath> <projectName> -import <file> -postScript BinAbsInspector "@@<scriptParams>"
 ```
+```
+Only check CWE-416
+$GHIDRA_INSTALL_DIR/support/analyzeHeadless ./demo test1 -import binary_path -postScript BinAbsInspector "@@-K 50 -callStringK 3 -Z3Timeout 1000 -timeout -1 -json -check 'CWE-416'" | tee result.txt"
+```
 `<projectPath>`   --   Ghidra project path.  
 `<projectName>`   --   Ghidra project name.  
 `<scriptParams>`  --   The argument for our analyzer, provides following options:
